@@ -10,6 +10,9 @@
 using namespace std;
 
 template <class T>
+class Vertex;
+
+template <class T>
 istream &operator>>(istream &, Vertex<T> &c);
 
 template <class T>
@@ -20,6 +23,8 @@ class Vertex {
     Vertex(const Vertex& other) : label(-1), x(0), y(0) { *this = other; }
 	Vertex<T> &operator=(const Vertex<T>& other);
     friend istream &operator>> <T>(istream &, Vertex<T> &c);
+    const double getX() const {return x;}
+    const double getY() const {return y;}
 
 
     private:
@@ -42,6 +47,8 @@ istream &operator>>(istream &is, Vertex<T> &c) {
 	return is;
 }
 
+template <class T>
+class Edge;
 
 template <class T>
 istream &operator>>(istream &, Edge<T> &c);
@@ -54,6 +61,8 @@ class Edge {
     Edge(const Edge& other) : label(-1), vInitial(), vFinal(), fPos(-1), fNeg(-1) { *this = other; }
 	Edge<T> &operator=(const Edge<T>& other);
     friend istream &operator>> <T>(istream &, Edge<T> &c);
+    const Vertex<T> getInit() const {return vInitial;}
+    const Vertex<T> getFin() const {return vFinal;}
 
 
     private:
@@ -78,35 +87,33 @@ istream &operator>>(istream &is, Edge<T> &c) {
 	return is;
 }
 
-/*
-template <class T>
-class Chain {
-    public:
-    Chain(): label(-1), nEdges(0), vInitial(-1), vFinal(-1), fPos(-1), fNeg(-1) { vertices(0); }
-    Chain(const int label, const int nEdges, const int vInitial, const int vFinal, const int fPos, const int fNeg, const vector<pair<T,T> >& vertices);
-    Chain(const Chain& other) : label(-1), nEdges(0), vInitial(-1), vFinal(-1), fPos(-1), fNeg(-1) { vertices(0); *this = other; }
-	Chain<T> &operator=(const Chain<T>& other);
+// template <class T>
+    // class Chain {
+    //     public:
+    //     Chain(): label(-1), nEdges(0), vInitial(-1), vFinal(-1), fPos(-1), fNeg(-1) { vertices(0); }
+    //     Chain(const int label, const int nEdges, const int vInitial, const int vFinal, const int fPos, const int fNeg, const vector<pair<T,T> >& vertices);
+    //     Chain(const Chain& other) : label(-1), nEdges(0), vInitial(-1), vFinal(-1), fPos(-1), fNeg(-1) { vertices(0); *this = other; }
+    // 	Chain<T> &operator=(const Chain<T>& other);
 
 
 
-    private:
-    int label, nEdges;
-    int vInitial, vFinal;
-    int fPos, fNeg;
-    vector<Vertex<T> > vertices;
+    //     private:
+    //     int label, nEdges;
+    //     int vInitial, vFinal;
+    //     int fPos, fNeg;
+    //     vector<Vertex<T> > vertices;
 
-};
+    // };
 
-template <class T>
-Chain<T>& Chain<T>::operator=(const Chain<T>& other) {
-    if(&other==this) 
-        return *this;
-    label = other.label; nEdges = other.nEdges; 
-    vInitial = other.vInitial; vFinal = other.vFinal; 
-    fPos = other.fPos; fNeg = other.fNeg;
-    vertices = other.vertices;
-    return *this;
-}
-*/
+    // template <class T>
+    // Chain<T>& Chain<T>::operator=(const Chain<T>& other) {
+    //     if(&other==this) 
+    //         return *this;
+    //     label = other.label; nEdges = other.nEdges; 
+    //     vInitial = other.vInitial; vFinal = other.vFinal; 
+    //     fPos = other.fPos; fNeg = other.fNeg;
+    //     vertices = other.vertices;
+    //     return *this;
+    // }
 
 #endif

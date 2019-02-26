@@ -67,7 +67,7 @@ class Edge {
 
     private:
     int label;
-    Vertex<T> vInitial, vFinal;
+    int vInitial, vFinal;
     int fPos, fNeg;
 };
 

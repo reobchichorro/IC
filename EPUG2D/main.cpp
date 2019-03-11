@@ -105,8 +105,8 @@ int main() {
     for(int i=0; i<resolution; i++)
         grid[i].resize(resolution);
 
-    vector<pii> cellOfPoint0(p0); // Creating vectors to store which cell a point is on the grid
-    vector<pii> cellOfPoint1(p1);
+    vector<pii> cellOfPoint(p0+p1); // Creating a vector to store which cell a point is on the grid
+    //vector<pii> cellOfPoint1(p1);
 
 
     ptt x; getX(points,x); x.second += 0.5; // x.first is the lower limit of the grid's x-coordinate x.second is the upper limit.
@@ -121,20 +121,16 @@ int main() {
     cerr << "Cell Size: " << cellSize.first << " x " << cellSize.second << "\n\n";
 
     // #pragma omp parallel for
-    for(int i=0; i<p0; i++) {
-        //determining cell for each point of map0
-        findCell(x,y,cellSize,cellOfPoint0,points[i],i);
-    }
-    for(int i=0; i<p1; i++) {
-        //determining cell for each point of map1
-        findCell(x,y,cellSize,cellOfPoint1,points[i+p0],i);
+    for(int i=0; i<p0+p1; i++) {
+        //determining cell for each point
+        findCell(x,y,cellSize,cellOfPoint,points[i],i);
     }
 
     cerr << "\nInserting edges \n";
 
     //Inserting edges into grid
-    insertEdge(grid, cellOfPoint0, map0, 0);
-    insertEdge(grid, cellOfPoint1, map1, 1);
+    insertEdge(grid, cellOfPoint, map0, 0);
+    insertEdge(grid, cellOfPoint, map1, 1);
 
     cerr << "\n";
 

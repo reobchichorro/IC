@@ -23,8 +23,8 @@ class Vertex {
     Vertex(const Vertex& other) : label(-1), x(0), y(0) { *this = other; }
 	Vertex<T> &operator=(const Vertex<T>& other);
     friend istream &operator>> <T>(istream &, Vertex<T> &c);
-    const double getX() const {return x;}
-    const double getY() const {return y;}
+    const T getX() const {return x;}
+    const T getY() const {return y;}
 
 
     private:
@@ -61,8 +61,8 @@ class Edge {
     Edge(const Edge& other) : label(-1), vInitial(), vFinal(), fPos(-1), fNeg(-1) { *this = other; }
 	Edge<T> &operator=(const Edge<T>& other);
     friend istream &operator>> <T>(istream &, Edge<T> &c);
-    const Vertex<T> getInit() const {return vInitial;}
-    const Vertex<T> getFin() const {return vFinal;}
+    const int getInit() const {return vInitial;}
+    const int getFin() const {return vFinal;}
 
 
     private:

@@ -63,6 +63,7 @@ class Edge {
     friend istream &operator>> <T>(istream &, Edge<T> &c);
     const int getInit() const {return vInitial;}
     const int getFin() const {return vFinal;}
+    const int getLabel() const {return label;}
 
 
     private:

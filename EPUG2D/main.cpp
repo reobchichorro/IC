@@ -83,8 +83,9 @@ void insertEdge(vector<vector<pair<ve,ve > > >& grid, const vector<pii>& cellOfP
 
         cerr << "Edge " << i << ": Points " << initialPoint << " - " << finalPoint << " / (" << x.first << "," << y.first << ") - (" << x.second << "," << y.second << ")\n";
 
-        for(int horizontal=x.first; horizontal<x.second; horizontal++) {
-            for(int vertical=y.first; vertical<y.second; vertical++) {
+        for(int horizontal=x.first; horizontal<=x.second; horizontal++) {
+            for(int vertical=y.first; vertical<=y.second; vertical++) {
+                //cerr << horizontal << " " << vertical << "\n";
                 if(whichMap)
                     grid[horizontal][vertical].second.push_back(map[i]);
                 else
@@ -92,6 +93,25 @@ void insertEdge(vector<vector<pair<ve,ve > > >& grid, const vector<pii>& cellOfP
             }    
         }
     }
+}
+
+int orientation(const vtx& p, const vtx& q, const vtx& r) {
+    double determinant = (p.getX() - q.getX()) * (q.getY() - r.getY()) - (q.getX() - r.getX()) * (p.getY() - q.getY());
+    if(determinant == 0.0) return 0;
+    return (determinant > 0)? 1: -1;
+}
+
+//Missing: calculate the intersection point. Also does not include degenerate cases.
+void checkIntersection(const vv& points, const E& a, const E& b) {
+    cerr << "in function\n";
+    if(
+        (orientation(points[a.getInit()], points[a.getFin()], points[b.getInit()]) != orientation(points[a.getInit()], points[a.getFin()], points[b.getFin()]) )
+        &&
+        (orientation(points[b.getInit()], points[b.getFin()], points[a.getInit()]) != orientation(points[b.getInit()], points[b.getFin()], points[a.getFin()]) )
+    )
+        cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " intersect.\n";
+    else
+        cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " do not intersect.\n";
 }
 
 int main() {
@@ -133,6 +153,18 @@ int main() {
     insertEdge(grid, cellOfPoint, map1, 1);
 
     cerr << "\n";
+
+    for(int i=0; i<grid.size(); i++) {
+        for(int j=0; j<grid[i].size(); j++) {
+            for(int k=0; k<grid[i][j].first.size(); k++) {
+                for(int l=0; l<grid[i][j].second.size(); l++) {
+                    checkIntersection(points, grid[i][j].first[k], grid[i][j].first[l]);
+                }
+            }
+        }
+    }
+
+    //checkIntersection(points, map0[0], map0[1]);
 
     return 0;
 }

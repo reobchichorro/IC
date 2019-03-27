@@ -18,18 +18,23 @@ istream &operator>>(istream &, Vertex<T> &c);
 template <class T>
 class Vertex {
     public:
-    Vertex(): label(-1), x(0), y(0) {}
-    Vertex(const int label_, const T& x_, const T& y_) : label(label_), x(x_), y(y_) {}
-    Vertex(const Vertex& other) : label(-1), x(0), y(0) { *this = other; }
+    Vertex(): label(-1), x(0), y(0), fatherLabel(-1), motherLabel(-1) {}
+    Vertex(const int label_, const T& x_, const T& y_, const int fatherLabel_, const int motherLabel_) : label(label_), x(x_), y(y_), fatherLabel(fatherLabel_), motherLabel(motherLabel_) {}
+    Vertex(const Vertex& other) : label(-1), x(0), y(0), fatherLabel(-1), motherLabel(-1) { *this = other; }
 	Vertex<T> &operator=(const Vertex<T>& other);
     friend istream &operator>> <T>(istream &, Vertex<T> &c);
     const T getX() const {return x;}
     const T getY() const {return y;}
+    const int getLabel() const {return label;}
+    const int getFatherLabel() const {return fatherLabel;}
+    const int getMotherLabel() const {return motherLabel;}
+    void setOriginLabels(const int f, const int m) {fatherLabel=f; motherLabel=m;}
 
 
     private:
     T x, y;
     int label;
+    int fatherLabel, motherLabel;
 };
 
 template <class T>
@@ -64,7 +69,6 @@ class Edge {
     const int getInit() const {return vInitial;}
     const int getFin() const {return vFinal;}
     const int getLabel() const {return label;}
-
 
     private:
     int label;

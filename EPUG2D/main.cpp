@@ -114,6 +114,21 @@ void checkIntersection(const vv& points, const E& a, const E& b) {
         cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " do not intersect.\n";
 }
 
+void edgeIntersection(vtx& intersection, const E& e0, const E& e1, const vv& points) {
+    T a=points[e0.getInit()].getX(), b=points[e0.getInit()].getY(), c=points[e0.getFin()].getX(), d=points[e0.getFin()].getY();
+    T e=points[e1.getInit()].getX(), f=points[e1.getInit()].getY(), g=points[e1.getFin()].getX(), h=points[e1.getFin()].getY();
+    T bigFractionNumerator   = ( (g-e)*(f-b) - (h-f)*(e-a) );
+    T bigFractionDenominator = ( (g-e)*(d-b) - (c-a)*(h-f) );
+    cerr << a << "," << b << " - " << c << "," << d << "\n" << e << "," << f << " " << g << "," << h << "\n";
+    if(bigFractionNumerator == 0) cerr << "Numerator 0\n";
+    if(bigFractionDenominator == 0) cerr << "Denominator 0 - parallel lines(I believe), SoS handles it so it never happens\n";
+    else bigFractionNumerator /= bigFractionDenominator;
+    //cerr << "bigFraction: " << bigFractionNumerator << "/" << bigFractionDenominator <<  "\n";
+
+    intersection = vtx(points.size(),(c-a)*bigFractionNumerator+a,(d-b)*bigFractionNumerator+b,e0.getLabel(),e1.getLabel());
+    return;
+}   //Currently returns the intersection ponit of the LINES, but doesn't verify if this point in actually IN THE EDGES (could be outside).
+
 int main() {
     int resolution = 10;
     int p0; int p1;
@@ -164,7 +179,11 @@ int main() {
         }
     }
 
+    //Testing case for intersection function
     //checkIntersection(points, map0[0], map0[1]);
+    vtx intersection;
+    edgeIntersection(intersection,map0[0],map0[1],points); //Edge 0's dinal point is the same as edge 1's initial point.
+    cout << "Intersection: (" << intersection.getX() << "," << intersection.getY() << ")\n"; //Thus, cout should print this point (point 1 in the points vector).
 
     return 0;
 }

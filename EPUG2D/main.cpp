@@ -20,8 +20,10 @@ void read(vv& points, ve& map0, ve& map1, int& p0, int& p1) {
     points.resize(p0+p1);
     for(int i=0; i<p0; i++)
         m0 >> points[i];
-    for(int i=0; i<p1; i++)
+    for(int i=0; i<p1; i++) {
         m1 >> points[p0+i];
+        points[p0+i].setLabel(p0+i);
+    }
 
     int n;
     m0>>n;
@@ -31,8 +33,10 @@ void read(vv& points, ve& map0, ve& map1, int& p0, int& p1) {
 
     m1>>n;
     map1.resize(n);
-    for(int i=0; i<n; i++)
+    for(int i=0; i<n; i++) {
         m1 >> map1[i];
+        map1[i].setVs(map1[i].getInit()+p0, map1[i].getFin()+p0);
+    }
 }
 
 void getX(const vv& points, ptt& x) {
@@ -101,19 +105,24 @@ int orientation(const vtx& p, const vtx& q, const vtx& r) {
     return (determinant > 0)? 1: -1;
 }
 
-//Missing: calculate the intersection point. Also does not include degenerate cases.
-void checkIntersection(const vv& points, const E& a, const E& b) {
+//Checks if two edges intersect. Does not include degenerate cases (handled by SoS).
+int checkIntersection(const vv& points, const E& a, const E& b) {
     cerr << "in function\n";
     if(
         (orientation(points[a.getInit()], points[a.getFin()], points[b.getInit()]) != orientation(points[a.getInit()], points[a.getFin()], points[b.getFin()]) )
         &&
         (orientation(points[b.getInit()], points[b.getFin()], points[a.getInit()]) != orientation(points[b.getInit()], points[b.getFin()], points[a.getFin()]) )
-    )
+    ) {
         cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " intersect.\n";
-    else
+        return 1
+    }
+    else {
         cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " do not intersect.\n";
+        return -1;
+    }
 }
 
+//Returns the intersection point of the LINES, but doesn't verify if this point in actually IN THE EDGES (could be outside).
 void edgeIntersection(vtx& intersection, const E& e0, const E& e1, const vv& points) {
     T a=points[e0.getInit()].getX(), b=points[e0.getInit()].getY(), c=points[e0.getFin()].getX(), d=points[e0.getFin()].getY();
     T e=points[e1.getInit()].getX(), f=points[e1.getInit()].getY(), g=points[e1.getFin()].getX(), h=points[e1.getFin()].getY();
@@ -127,7 +136,7 @@ void edgeIntersection(vtx& intersection, const E& e0, const E& e1, const vv& poi
 
     intersection = vtx(points.size(),(c-a)*bigFractionNumerator+a,(d-b)*bigFractionNumerator+b,e0.getLabel(),e1.getLabel());
     return;
-}   //Currently returns the intersection ponit of the LINES, but doesn't verify if this point in actually IN THE EDGES (could be outside).
+}
 
 int main() {
     int resolution = 10;
@@ -169,11 +178,15 @@ int main() {
 
     cerr << "\n";
 
+    vtx intersectionPoint;
     for(int i=0; i<grid.size(); i++) {
         for(int j=0; j<grid[i].size(); j++) {
             for(int k=0; k<grid[i][j].first.size(); k++) {
                 for(int l=0; l<grid[i][j].second.size(); l++) {
-                    checkIntersection(points, grid[i][j].first[k], grid[i][j].first[l]);
+                    if(checkIntersection(points, grid[i][j].first[k], grid[i][j].second[l]) == 1) {
+                        edgeIntersection(intersectionPoint,grid[i][j].first[k],grid[i][j].second[l],points);
+                        points.push_back(intersectionPoint);
+                    }
                 }
             }
         }
@@ -181,9 +194,8 @@ int main() {
 
     //Testing case for intersection function
     //checkIntersection(points, map0[0], map0[1]);
-    vtx intersection;
-    edgeIntersection(intersection,map0[0],map0[1],points); //Edge 0's dinal point is the same as edge 1's initial point.
-    cout << "Intersection: (" << intersection.getX() << "," << intersection.getY() << ")\n"; //Thus, cout should print this point (point 1 in the points vector).
+    edgeIntersection(intersectionPoint,map0[0],map0[1],points); //Edge 0's dinal point is the same as edge 1's initial point.
+    cout << "Intersection: (" << intersectionPoint.getX() << "," << intersectionPoint.getY() << ")\n"; //Thus, cout should print this point (point 1 in the points vector).
 
     return 0;
 }

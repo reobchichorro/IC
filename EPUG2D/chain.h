@@ -28,8 +28,8 @@ class Vertex {
     const int getLabel() const {return label;}
     const int getFatherLabel() const {return fatherLabel;}
     const int getMotherLabel() const {return motherLabel;}
+    void setLabel(const int v) { label = v; }
     void setOriginLabels(const int f, const int m) {fatherLabel=f; motherLabel=m;}
-
 
     private:
     T x, y;
@@ -69,6 +69,7 @@ class Edge {
     const int getInit() const {return vInitial;}
     const int getFin() const {return vFinal;}
     const int getLabel() const {return label;}
+    void setVs(const int vI, const int vF) { vInitial = vI; vFinal = vF; }
 
     private:
     int label;

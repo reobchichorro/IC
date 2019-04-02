@@ -18,11 +18,14 @@ void read(vv& points, ve& map0, ve& map1, int& p0, int& p1) {
     
     m0 >> p0; m1 >> p1;
     points.resize(p0+p1);
-    for(int i=0; i<p0; i++)
+    for(int i=0; i<p0; i++) {
         m0 >> points[i];
+        points[i].setOriginLabels(-1,-1);
+    }
     for(int i=0; i<p1; i++) {
         m1 >> points[p0+i];
         points[p0+i].setLabel(p0+i);
+        points[i].setOriginLabels(-2,-2);
     }
 
     int n;
@@ -138,6 +141,23 @@ void edgeIntersection(vtx& intersection, const E& e0, const E& e1, const vv& poi
     return;
 }
 
+/*
+"Pseudocode" for the Point Location function:
+Given a query vertex P of map A, find which region/face of map B contains P.
+
+for j = yOfCellOfP to  j <= maxY
+    for each edge e of map B in cell [xOfCellOfP][j]:
+        if a semi-infinite vertical ray from P hits edge E, then P is inside the region/face that the ray eas when it hit E
+        (how to make this check? i'm guessing something using the x-coordinates of the bounding points of E)
+        (also, in the first cell (the one that contains P), we have to check the y-coordinates of E *, as E could be BELOW P, 
+        but as it is in the same cell, it is being checked, but it shouldn't)
+        * doing this check: if the y-coordinate of both points of the edge are higher than P's y-coordinate, 
+        then we should check if the ray hits the edge;
+        if the y-coordinate of both points is below P, than we shouldn't check if the ray hits the edge.
+        if one point of the edge is above P and the other is below, then check P's orientation in relation to the edge.
+
+*/
+
 int main() {
     int resolution = 10;
     int p0; int p1;
@@ -193,7 +213,7 @@ int main() {
     }
 
     //Testing case for intersection function
-    //checkIntersection(points, map0[0], map0[1]);
+    checkIntersection(points, map0[0], map0[1]);
     edgeIntersection(intersectionPoint,map0[0],map0[1],points); //Edge 0's dinal point is the same as edge 1's initial point.
     cout << "Intersection: (" << intersectionPoint.getX() << "," << intersectionPoint.getY() << ")\n"; //Thus, cout should print this point (point 1 in the points vector).
 

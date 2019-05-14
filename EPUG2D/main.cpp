@@ -20,7 +20,7 @@ struct Cell {
 };
 
 void read(vv& points, ve& map0, ve& map1, int& p0, int& p1) {
-    ifstream m0("map0.txt"); ifstream m1("map1.txt"); 
+    ifstream m0("datasets/novoOdyssey/brCounty.txt"); ifstream m1("datasets/novoOdyssey/brSoil.txt"); 
     
     m0 >> p0; m1 >> p1;
     points.resize(p0+p1);
@@ -74,7 +74,7 @@ void findCell(const ptt& x, const ptt& y, const ptt& cellSize, vector<pii>& cell
     int column = (int)( (point.getY() - y.first)/cellSize.second );
     cellOfPoint[i] = make_pair(row,column);
 
-    cerr << "Point " << i << " and its cell: (" << point.getX() << "," << point.getY() << ") -> (" << row << "," << column << ")\n";
+    // cerr << "Point " << i << " and its cell: (" << point.getX() << "," << point.getY() << ") -> (" << row << "," << column << ")\n";
 }   
 void insertEdge(vector<vector<Cell> >& grid, const vector<pii>& cellOfPoint, const ve& map, const bool whichMap) {
     int initialPoint, finalPoint;
@@ -90,7 +90,7 @@ void insertEdge(vector<vector<Cell> >& grid, const vector<pii>& cellOfPoint, con
         y = make_pair(cellOfPoint[initialPoint].second,cellOfPoint[finalPoint].second);
         if(y.first > y.second) swap(y.first,y.second);
 
-        cerr << "Edge " << i << ": Points " << initialPoint << " - " << finalPoint << " / (" << x.first << "," << y.first << ") - (" << x.second << "," << y.second << ")\n";
+        // cerr << "Edge " << i << ": Points " << initialPoint << " - " << finalPoint << " / (" << x.first << "," << y.first << ") - (" << x.second << "," << y.second << ")\n";
 
         for(int horizontal=x.first; horizontal<=x.second; horizontal++) {
             for(int vertical=y.first; vertical<=y.second; vertical++) {
@@ -110,17 +110,17 @@ int orientation(const vtx& p, const vtx& q, const vtx& r) {
 }
 //Checks if two edges intersect. Does not include degenerate cases (handled by SoS).
 int checkIntersection(const vv& points, const E& a, const E& b) {
-    cerr << "in function\n";
+    // cerr << "in function\n";
     if(
         (orientation(points[a.getInit()], points[a.getFin()], points[b.getInit()]) != orientation(points[a.getInit()], points[a.getFin()], points[b.getFin()]) )
         &&
         (orientation(points[b.getInit()], points[b.getFin()], points[a.getInit()]) != orientation(points[b.getInit()], points[b.getFin()], points[a.getFin()]) )
     ) {
-        cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " intersect.\n";
+        // cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " intersect.\n";
         return 1;
     }
     else {
-        cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " do not intersect.\n";
+        // cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " do not intersect.\n";
         return -1;
     }
 }
@@ -130,8 +130,8 @@ void edgeIntersection(vtx& intersection, const E& e0, const E& e1, const vv& poi
     T e=points[e1.getInit()].getX(), f=points[e1.getInit()].getY(), g=points[e1.getFin()].getX(), h=points[e1.getFin()].getY();
     T bigFractionNumerator   = ( (g-e)*(f-b) - (h-f)*(e-a) );
     T bigFractionDenominator = ( (g-e)*(d-b) - (c-a)*(h-f) );
-    cerr << a << "," << b << " - " << c << "," << d << "\n" << e << "," << f << " " << g << "," << h << "\n";
-    if(bigFractionNumerator == 0) cerr << "Numerator 0\n";
+    // cerr << a << "," << b << " - " << c << "," << d << "\n" << e << "," << f << " " << g << "," << h << "\n";
+    // if(bigFractionNumerator == 0) cerr << "Numerator 0\n";
     if(bigFractionDenominator == 0) cerr << "Denominator 0 - parallel lines(I believe), SoS handles it so it never happens\n";
     else bigFractionNumerator /= bigFractionDenominator;
     //cerr << "bigFraction: " << bigFractionNumerator << "/" << bigFractionDenominator <<  "\n";
@@ -157,12 +157,12 @@ void edgeIntersection(vtx& intersection, const E& e0, const E& e1, const vv& poi
 */
 
 int main() {
-    int resolution = 10;
     int p0; int p1;
     vv points; ve map0, map1;
 
     read(points,map0,map1,p0,p1); //Reading points and edges of both maps
 
+    int resolution = 200;
     vector<vector<Cell> > grid(resolution,vector<Cell>(resolution)); //Creating uniform grid and setting its size
 
     vector<pii> cellOfPoint(p0+p1); // Creating a vector to store which cell a point is on the grid
@@ -191,17 +191,20 @@ int main() {
     insertEdge(grid, cellOfPoint, map0, 0);
     insertEdge(grid, cellOfPoint, map1, 1);
 
-    cerr << "\n";
+    // cerr << "\n";
 
+    cerr << "Intersecting edges\n";
     vtx intersectionPoint;
     vv intersectionPoints; intersectionPoints.reserve(p0+p1); //cerr << "haha: " << intersectionPoints.size() << " " << intersectionPoints.capacity() << endl;
     for(int i=0; i<grid.size(); i++) {
+        cerr << "Line " << i << " done\n";
         for(int j=0; j<grid[i].size(); j++) {
             for(int k=0; k<grid[i][j].edges0.size(); k++) {
                 for(int l=0; l<grid[i][j].edges1.size(); l++) {
                     if(checkIntersection(points, grid[i][j].edges0[k], grid[i][j].edges1[l]) == 1) {
                         edgeIntersection(intersectionPoint,grid[i][j].edges0[k],grid[i][j].edges1[l],points);
                         intersectionPoints.push_back(intersectionPoint);
+                        cout << intersectionPoint.getX() << "," << intersectionPoint.getY() << " " << intersectionPoint.getFatherLabel() << " x " << intersectionPoint.getMotherLabel() << "\n";
                     }
                 }
             }
@@ -209,9 +212,9 @@ int main() {
     }
 
     //Testing case for intersection function
-    checkIntersection(points, map0[0], map0[1]);
-    edgeIntersection(intersectionPoint,map0[0],map0[1],points); //Edge 0's dinal point is the same as edge 1's initial point.
-    cout << "Intersection: (" << intersectionPoint.getX() << "," << intersectionPoint.getY() << ")\n"; //Thus, cout should print this point (point 1 in the points vector).
+    // checkIntersection(points, map0[0], map0[1]);
+    // edgeIntersection(intersectionPoint,map0[0],map0[1],points); //Edge 0's dinal point is the same as edge 1's initial point.
+    // cout << "Intersection: (" << intersectionPoint.getX() << "," << intersectionPoint.getY() << ")\n"; //Thus, cout should print this point (point 1 in the points vector).
 
     return 0;
 }

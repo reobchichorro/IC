@@ -104,12 +104,12 @@ void insertEdge(vector<vector<Cell> >& grid, const vector<pii>& cellOfPoint, con
     }
 }
 int orientation(const vtx& p, const vtx& q, const vtx& r) {
-    double determinant = (p.getX() - q.getX()) * (q.getY() - r.getY()) - (q.getX() - r.getX()) * (p.getY() - q.getY());
+    double determinant = (p.getX() - q.getX()) * (q.getY() - r.getY()) - (q.getX() - r.getX()) * (p.getY() - q.getY()); //change double to generic type later
     if(determinant == 0.0) return 0;
     return (determinant > 0)? 1: -1;
 }
 //Checks if two edges intersect. Does not include degenerate cases (handled by SoS).
-int checkIntersection(const vv& points, const E& a, const E& b) {
+bool checkIntersection(const vv& points, const E& a, const E& b) {
     // cerr << "in function\n";
     if(
         (orientation(points[a.getInit()], points[a.getFin()], points[b.getInit()]) != orientation(points[a.getInit()], points[a.getFin()], points[b.getFin()]) )
@@ -117,12 +117,19 @@ int checkIntersection(const vv& points, const E& a, const E& b) {
         (orientation(points[b.getInit()], points[b.getFin()], points[a.getInit()]) != orientation(points[b.getInit()], points[b.getFin()], points[a.getFin()]) )
     ) {
         // cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " intersect.\n";
-        return 1;
+        return true;
     }
     else {
         // cerr << "Edges " << a.getLabel() << " and " << b.getLabel() << " do not intersect.\n";
-        return -1;
+        return false;
     }
+}
+//New checkIntersection that might be faster. But it's wrong, because the orientation return 1, 0, or -1, so I can't just move stuff around.
+int checkIntersection2(const vv& points, const E& a, const E& b) {
+    double px,py,qx,qy; //change double to generic type later
+    px = points[a.getInit()].getX() - points[a.getFin()].getX(); py = points[a.getInit()].getY() - points[a.getFin()].getY();
+    qx = points[b.getInit()].getX() - points[b.getFin()].getX(); qy = points[b.getInit()].getY() - points[b.getFin()].getY();
+    return ((px*qx != py*qy) && (px*qy != py*qx));
 }
 //Returns the intersection point of the LINES, but doesn't verify if this point in actually IN THE EDGES (could be outside).
 void edgeIntersection(vtx& intersection, const E& e0, const E& e1, const vv& points) {
@@ -163,6 +170,7 @@ int main() {
     read(points,map0,map1,p0,p1); //Reading points and edges of both maps
 
     int resolution = 200;
+    // int resolution; cout << "Inform the resolution: "; cin>>resolution;
     vector<vector<Cell> > grid(resolution,vector<Cell>(resolution)); //Creating uniform grid and setting its size
 
     vector<pii> cellOfPoint(p0+p1); // Creating a vector to store which cell a point is on the grid
@@ -196,20 +204,36 @@ int main() {
     cerr << "Intersecting edges\n";
     vtx intersectionPoint;
     vv intersectionPoints; intersectionPoints.reserve(p0+p1); //cerr << "haha: " << intersectionPoints.size() << " " << intersectionPoints.capacity() << endl;
-    for(int i=0; i<grid.size(); i++) {
+    
+    long long int nIntersections=0;
+    // #pragma omp parallel for
+    // for(int i=0; i<grid.size(); i++) {
+    for(int i=0; i<60; i++) {
         cerr << "Line " << i << " done\n";
         for(int j=0; j<grid[i].size(); j++) {
+            // cerr << grid[i][j].edges0.size()*grid[i][j].edges1.size() << " ";
+            
             for(int k=0; k<grid[i][j].edges0.size(); k++) {
                 for(int l=0; l<grid[i][j].edges1.size(); l++) {
-                    if(checkIntersection(points, grid[i][j].edges0[k], grid[i][j].edges1[l]) == 1) {
-                        edgeIntersection(intersectionPoint,grid[i][j].edges0[k],grid[i][j].edges1[l],points);
-                        intersectionPoints.push_back(intersectionPoint);
-                        cout << intersectionPoint.getX() << "," << intersectionPoint.getY() << " " << intersectionPoint.getFatherLabel() << " x " << intersectionPoint.getMotherLabel() << "\n";
+                    if(checkIntersection(points, grid[i][j].edges0[k], grid[i][j].edges1[l])) {
+                        nIntersections++;
+                        // edgeIntersection(intersectionPoint,grid[i][j].edges0[k],grid[i][j].edges1[l],points);
+                        // #pragma omp critical 
+                        // {
+                        //     intersectionPoints.push_back(intersectionPoint);
+                        // }
+                        // cout << intersectionPoint.getX() << "," << intersectionPoint.getY() << " " << intersectionPoint.getFatherLabel() << " x " << intersectionPoint.getMotherLabel() << "\n";
                     }
                 }
             }
         }
+        // cerr << "\n";
     }
+    cerr << nIntersections << "\n";
+    // cerr << "Done\n";
+
+    // for(auto &c: intersectionPoints)
+    //     cout << c.getX() << "," << c.getY() << " - " << c.getFatherLabel() << "x" << c.getMotherLabel() << "\n";
 
     //Testing case for intersection function
     // checkIntersection(points, map0[0], map0[1]);
